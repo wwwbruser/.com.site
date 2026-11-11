@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maquisul — Sua solução em um só lugar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --green:#2e7d32;--green-lt:#40b552;--green-dk:#1b5e20;
+    --blue:#0d47a1;--dark:#1a1a1a;--grey:#5a5a5a;--grey-lt:#e5e5e5;
+    --bg:#f5f7f5;--white:#fff;--shadow:0 2px 12px rgba(0,0,0,.08);
+    --shadow-lg:0 12px 32px rgba(0,0,0,.15);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--dark);line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  ul{list-style:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+  /* ============ TOPBAR ============ */
+  .topbar{background:var(--dark);color:#fff;font-size:12px;padding:8px 0}
+  .topbar__inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .topbar__msg{display:flex;align-items:center;gap:8px}
+  .topbar__msg b{color:#ffd54f}
+  .topbar__links{display:flex;gap:20px}
+  .topbar__links a{opacity:.85;transition:.2s}
+  .topbar__links a:hover{opacity:1;color:var(--green-lt)}
+
+  /* ============ HEADER ============ */
+  .header{background:#fff;box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
+  .header__main{max-width:1400px;margin:0 auto;padding:16px 24px;display:grid;grid-template-columns:auto 1fr auto auto;gap:24px;align-items:center}
+  .logo{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:800;color:var(--green)}
+  .logo__icon{width:38px;height:38px;background:linear-gradient(135deg,var(--green),var(--green-lt));border-radius:8px;display:grid;place-items:center;color:#fff;font-size:20px}
+  .logo small{font-size:10px;color:var(--grey);font-weight:500;display:block;line-height:1}
+
+  .search{position:relative;flex:1;max-width:600px}
+  .search__wrap{display:flex;border:2px solid var(--grey-lt);border-radius:8px;overflow:hidden;transition:.2s}
+  .search__wrap:focus-within{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,125,50,.1)}
+  .search__input{flex:1;padding:12px 16px;border:none;outline:none;font-size:14px;font-family:inherit}
+  .search__btn{background:var(--green);color:#fff;padding:0 22px;font-weight:600;font-size:14px;transition:.2s}
+  .search__btn:hover{background:var(--green-dk)}
+  .search__drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--grey-lt);border-radius:8px;margin-top:6px;box-shadow:var(--shadow-lg);display:none;max-height:340px;overflow-y:auto;z-index:50}
+  .search__drop.show{display:block}
+  .search__drop li{padding:10px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f5f5f5;font-size:13px}
+  .search__drop li:hover{background:#f0f8f0}
+  .search__drop .tag{background:var(--green);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:auto}
+
+  .header__actions{display:flex;gap:8px;align-items:center}
+  .icon-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative;transition:.2s;color:var(--dark);font-size:18px}
+  .icon-btn:hover{background:#f0f8f0;color:var(--green)}
+  .cart-badge{position:absolute;top:2px;right:2px;background:#e53935;color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 5px}
+  .header__phone{display:flex;flex-direction:column;text-align:right;font-size:12px;line-height:1.3}
+  .header__phone strong{color:var(--green);font-size:15px}
+  .header__phone small{color:var(--grey)}
+
+  /* ============ NAV ============ */
+  .nav{background:var(--green);color:#fff}
+  .nav__inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:4px}
+  .nav__item{padding:14px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;transition:.2s;cursor:pointer;position:relative}
+  .nav__item:hover,.nav__item.active{background:rgba(255,255,255,.15)}
+  .nav__item--destaque{background:var(--green-dk)}
+
+  /* Mega menu */
+  .mega{position:absolute;top:100%;left:0;background:#fff;color:var(--dark);width:900px;border-radius:0 0 12px 12px;box-shadow:var(--shadow-lg);padding:24px;display:none;grid-template-columns:repeat(3,1fr);gap:24px;z-index:90}
+  .nav__item:hover .mega{display:grid}
+  .mega h4{font-size:13px;color:var(--green);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .mega ul li{padding:6px 0;font-size:13px;color:var(--grey);cursor:pointer;transition:.15s}
+  .mega ul li:hover{color:var(--green);padding-left:6px}
+
+  /* ============ HERO ============ */
+  .hero{max-width:1400px;margin:24px auto;padding:0 24px}
+  .hero__slide{border-radius:16px;overflow:hidden;position:relative;height:340px;background:linear-gradient(135deg,var(--green),var(--green-dk));display:grid;place-items:center;color:#fff;text-align:center;padding:40px;box-shadow:var(--shadow-lg)}
+  .hero__slide::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><path d="M0 0h60v60H0z" fill="none"/><path d="M30 0L0 30M60 30L30 60" stroke="white" stroke-opacity="0.04" stroke-width="2"/></svg>');opacity:.4}
+  .hero__content{position:relative;z-index:2;max-width:640px}
+  .hero__badge{display:inline-block;background:rgba(255,255,255,.2);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:16px;backdrop-filter:blur(4px)}
+  .hero__title{font-size:42px;font-weight:800;line-height:1.15;margin-bottom:12px;letter-spacing:-1px}
+  .hero__title span{color:#ffd54f}
+  .hero__sub{font-size:16px;opacity:.9;margin-bottom:24px}
+  .hero__cta{display:inline-flex;align-items:center;gap:8px;background:#ffd54f;color:var(--dark);padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;transition:.2s;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+  .hero__cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+  .hero__dots{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:2}
+  .hero__dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:.2s}
+  .hero__dots span.active{background:#fff;width:24px;border-radius:4px}
+
+  /* ============ CATEGORIES ============ */
+  .section{max-width:1400px;margin:40px auto;padding:0 24px}
+  .section__head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .section__title{font-size:24px;font-weight:800;color:var(--dark)}
+  .section__title small{display:block;font-size:12px;color:var(--grey);font-weight:500;margin-top:2px}
+  .section__link{color:var(--green);font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px}
+
+  .cats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .cat{background:#fff;border-radius:12px;padding:20px 12px;text-align:center;cursor:pointer;transition:.2s;border:2px solid transparent;box-shadow:var(--shadow)}
+  .cat:hover{border-color:var(--green);transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .cat__icon{width:56px;height:56px;margin:0 auto 12px;border-radius:50%;background:#e8f5e9;display:grid;place-items:center;font-size:26px;color:var(--green)}
+  .cat__name{font-size:12px;font-weight:600;color:var(--dark);line-height:1.3}
+
+  /* ============ FILTROS + GRID ============ */
+  .catalog{display:grid;grid-template-columns:260px 1fr;gap:24px}
+  .filters{background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow);height:fit-content;position:sticky;top:150px}
+  .filters h3{font-size:14px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--grey-lt);display:flex;align-items:center;gap:8px}
+  .filter-group{margin-bottom:20px}
+  .filter-group h4{font-size:12px;color:var(--grey);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;font-weight:700}
+  .filter-opt{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:13px;color:var(--grey);transition:.15s}
+  .filter-opt:hover{color:var(--green)}
+  .filter-opt input{accent-color:var(--green);width:16px;height:16px}
+  .filter-opt .count{color:#999;font-size:11px;margin-left:auto}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+  .product{background:#fff;border-radius:12px;overflow:hidden;transition:.2s;box-shadow:var(--shadow);position:relative;display:flex;flex-direction:column}
+  .product:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .product__img{height:180px;background:#f0f5f0;display:grid;place-items:center;font-size:64px;position:relative;overflow:hidden}
+  .product__img::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(46,125,50,.05), transparent)}
+  .product__badge{position:absolute;top:10px;left:10px;background:#e53935;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:4px;letter-spacing:.5px}
+  .product__badge--new{background:var(--green)}
+  .product__fav{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:var(--shadow);font-size:14px;color:#ccc;transition:.2s}
+  .product__fav:hover,.product__fav.active{color:#e53935}
+  .product__body{padding:14px;flex:1;display:flex;flex-direction:column}
+  .product__brand{font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+  .product__name{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px;line-height:1.4;min-height:36px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .product__stock{font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px;margin-bottom:8px}
+  .product__stock::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .product__price{margin-top:auto}
+  .product__price small{font-size:11px;color:var(--grey);display:block}
+  .product__price strong{font-size:20px;color:var(--green-dk);font-weight:800;line-height:1.1}
+  .product__price .old{font-size:12px;color:#999;text-decoration:line-through;margin-left:6px;font-weight:400}
+  .product__actions{display:flex;gap:6px;margin-top:10px}
+  .btn-add{flex:1;background:var(--green);color:#fff;padding:10px;border-radius:6px;font-size:12px;font-weight:700;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+  .btn-add:hover{background:var(--green-dk)}
+  .btn-view{width:38px;height:38px;border-radius:6px;border:1px solid var(--grey-lt);display:grid;place-items:center;color:var(--grey);transition:.2s}
+  .btn-view:hover{border-color:var(--green);color:var(--green)}
+
+  /* ============ DRAWER CARRINHO ============ */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;opacity:0;visibility:hidden;transition:.3s}
+  .overlay.show{opacity:1;visibility:visible}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:#fff;z-index:201;transform:translateX(100%);transition:.3s;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.2)}
+  .drawer.show{transform:translateX(0)}
+  .drawer__head{padding:20px;border-bottom:1px solid var(--grey-lt);display:flex;justify-content:space-between;align-items:center}
+  .drawer__head h3{font-size:16px;font-weight:700}
+  .drawer__close{width:36px;height:36px;border-radius:50%;background:#f5f5f5;display:grid;place-items:center;font-size:18px;color:var(--grey);transition:.2s}
+  .drawer__close:hover{background:#ffe0e0;color:#e53935}
+  .drawer__body{flex:1;overflow-y:auto;padding:16px 20px}
+  .cart-item{display:grid;grid-template-columns:60px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--grey-lt)}
+  .cart-item__img{width:60px;height:60px;background:#f0f5f0;border-radius:8px;display:grid;place-items:center;font-size:28px}
+  .cart-item__name{font-size:13px;font-weight:600;margin-bottom:4px;line-height:1.3}
+  .cart-item__meta{font-size:11px;color:var(--grey)}
+  .cart-item__price{font-size:14px;font-weight:700;color:var(--green-dk);text-align:right;margin-bottom:6px}
+  .qty{display:inline-flex;align-items:center;gap:8px;background:#f5f5f5;border-radius:6px;padding:2px}
+  .qty button{width:24px;height:24px;border-radius:4px;background:#fff;font-weight:700;color:var(--green);font-size:14px}
+  .qty span{min-width:24px;text-align:center;font-size:12px;font-weight:700}
+  .drawer__foot{padding:20px;border-top:2px solid var(--grey-lt);background:#fafafa}
+  .cart-total{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:var(--grey)}
+  .cart-total--big{font-size:18px;font-weight:800;color:var(--dark);padding-top:8px;border-top:1px solid var(--grey-lt);margin-top:8px}
+  .cart-total--big span:last-child{color:var(--green-dk);font-size:22px}
+  .cart-cta{width:100%;background:var(--green);color:#fff;padding:16px;border-radius:10px;font-weight:700;font-size:15px;margin-top:12px;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .cart-cta:hover{background:var(--green-dk)}
+  .cart-empty{text-align:center;padding:60px 20px;color:var(--grey)}
+  .cart-empty__icon{font-size:56px;margin-bottom:16px;opacity:.4}
+
+  /* ============ MODAL PRODUTO ============ */
+  .modal{position:fixed;inset:0;z-index:300;display:none;place-items:center;padding:20px}
+  .modal.show{display:grid}
+  .modal__content{background:#fff;border-radius:16px;width:100%;max-width:900px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+  .modal__close{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:var(--shadow);display:grid;place-items:center;font-size:20px;z-index:10;transition:.2s}
+  .modal__close:hover{background:#ffe0e0;color:#e53935}
+  .modal__grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .modal__img{background:linear-gradient(135deg,#e8f5e9,#f0f8f0);display:grid;place-items:center;font-size:140px;min-height:400px;border-radius:16px 0 0 16px}
+  .modal__info{padding:32px}
+  .modal__brand{color:var(--green);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+  .modal__title{font-size:26px;font-weight:800;margin:8px 0 16px;line-height:1.2}
+  .modal__rating{display:flex;gap:6px;align-items:center;margin-bottom:16px;font-size:13px;color:var(--grey)}
+  .modal__rating .stars{color:#ffb400}
+  .modal__desc{font-size:14px;color:var(--grey);line-height:1.6;margin-bottom:20px;padding:16px;background:#f9fbf9;border-radius:8px;border-left:3px solid var(--green)}
+  .modal__specs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;font-size:12px}
+  .modal__spec{padding:8px 12px;background:#f5f5f5;border-radius:6px;display:flex;justify-content:space-between}
+  .modal__spec strong{color:var(--dark)}
+  .modal__price{margin-bottom:20px;padding:16px;background:#f0f8f0;border-radius:10px}
+  .modal__price small{font-size:12px;color:var(--grey);display:block}
+  .modal__price .val{font-size:36px;font-weight:800;color:var(--green-dk);line-height:1.1}
+  .modal__price .parc{font-size:13px;color:var(--grey);margin-top:4px}
+  .modal__actions{display:flex;gap:10px}
+  .modal__actions .btn-add{flex:1;padding:16px;font-size:14px}
+  .modal__actions .btn-outline{padding:16px 20px;border-radius:6px;border:2px solid var(--green);color:var(--green);font-weight:700;font-size:13px}
+
+  /* ============ NEWSLETTER ============ */
+  .news{background:linear-gradient(135deg,var(--green-dk),var(--green));color:#fff;border-radius:16px;padding:40px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;box-shadow:var(--shadow-lg);max-width:1400px;margin:40px auto}
+  .news h3{font-size:26px;font-weight:800;margin-bottom:6px}
+  .news p{font-size:14px;opacity:.9}
+  .news__form{display:flex;gap:8px}
+  .news__form input{padding:14px 18px;border:none;border-radius:8px;font-size:14px;font-family:inherit;min-width:280px;outline:none}
+  .news__form button{background:#ffd54f;color:var(--dark);padding:14px 24px;border-radius:8px;font-weight:700;font-size:14px;transition:.2s}
+  .news__form button:hover{background:#ffca28;transform:translateY(-1px)}
+
+  /* ============ FOOTER ============ */
+  .footer{background:var(--dark);color:#aaa;padding:48px 0 0;margin-top:60px}
+  .footer__inner{max-width:1400px;margin:0 auto;padding:0 24px}
+  .footer__grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;gap:40px;padding-bottom:40px}
+  .footer h5{color:#fff;font-size:14px;font-weight:700;margin-bottom:16px}
+  .footer ul li{padding:5px 0;font-size:13px;transition:.2s}
+  .footer ul li:hover{color:var(--green-lt);padding-left:4px}
+  .footer__brand p{font-size:13px;line-height:1.6;margin-bottom:16px}
+  .footer__social{display:flex;gap:8px}
+  .footer__social a{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);display:grid;place-items:center;font-size:16px;transition:.2s;color:#fff}
+  .footer__social a:hover{background:var(--green);transform:translateY(-2px)}
+  .footer__bottom{border-top:1px solid rgba(255,255,255,.1);padding:20px 0;text-align:center;font-size:12px;color:#666}
+
+  /* ============ TOAST ============ */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:#fff;padding:14px 22px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;transform:translateY(120px);opacity:0;transition:.3s;z-index:999}
+  .toast.show{transform:translateY(0);opacity:1}
+  .toast__icon{width:24px;height:24px;border-radius:50%;background:var(--green-lt);display:grid;place-items:center;font-size:13px}
+
+  /* ============ RESPONSIVE ============ */
+  @media(max-width:1024px){
+    .header__main{grid-template-columns:auto 1fr auto;gap:16px}
+    .header__phone{display:none}
+    .cats{grid-template-columns:repeat(3,1fr)}
+    .catalog{grid-template-columns:1fr}
+    .filters{position:static}
+    .footer__grid{grid-template-columns:1fr 1fr}
+    .mega{width:100%;grid-template-columns:1fr 1fr}
+    .news{grid-template-columns:1fr;text-align:center}
+    .news__form{flex-direction:column}
+    .news__form input{min-width:auto}
+    .modal__grid{grid-template-columns:1fr}
+    .modal__img{border-radius:16px 16px 0 0;min-height:240px;font-size:90px}
+  }
+  @media(max-width:640px){
+    .topbar__links{display:none}
+    .header__main{padding:12px;gap:8px}
+    .logo__text small{display:none}
+    .search__input{padding:10px 12px}
+    .hero__slide{height:260px;padding:24px}
+    .hero__title{font-size:26px}
+    .hero__sub{font-size:13px}
+    .section{padding:0 12px;margin:24px auto}
+    .cats{grid-template-columns:repeat(2,1fr)}
+    .grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    .product__img{height:140px;font-size:44px}
+    .product__name{font-size:12px;min-height:32px}
+    .product__price strong{font-size:16px}
+    .footer__grid{grid-template-columns:1fr}
+    .drawer{width:100vw}
+    .nav__inner{overflow-x:auto;padding:0 8px;scrollbar-width:none}
+    .nav__inner::-webkit-scrollbar{display:none}
+    .nav__item{white-space:nowrap;font-size:11px;padding:12px 10px}
+    .mega{display:none!important}
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar__inner">
+    <div class="topbar__msg">🚚 <b>FRETE GRÁTIS</b> em Imperatriz-MA · Consulte regras</div>
+    <div class="topbar__links">
+      <a href="#">📞 (99) 2101-3555</a>
+      <a href="#">📧 e-commerce@maquisul.net</a>
+      <a href="#">📦 Meus pedidos</a>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__main">
+    <a href="#" class="logo">
+      <div class="logo__icon">🔧</div>
+      <div class="logo__text">MAQUISUL<small>Sua solução em um só lugar</small></div>
+    </a>
+
+    <div class="search">
+      <div class="search__wrap">
+        <input type="text" class="search__input" id="search" placeholder="Busca por código, nome ou marca..." autocomplete="off">
+        <button class="search__btn">Buscar</button>
+      </div>
+      <ul class="search__drop" id="searchDrop"></ul>
+    </div>
+
+    <div class="header__actions">
+      <button class="icon-btn" onclick="showToast('👤 Área do cliente em breve')">👤</button>
+      <button class="icon-btn" id="cartBtn" onclick="toggleCart()">
+        🛒<span class="cart-badge" id="cartCount">0</span>
+      </button>
+    </div>
+
+    <div class="header__phone">
+      <small>Fale com a gente</small>
+      <strong>📱 (99) 2101-3555</strong>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav__inner">
+    <div class="nav__item nav__item--destaque">☰ DEPARTAMENTOS ▾
+      <div class="mega">
+        <div>
+          <h4>Abrasivos & Corte</h4>
+          <ul><li>Disco de Corte</li><li>Disco de Desbaste</li><li>Disco Flap</li><li>Lixa</li><li>Escova de Aço</li></ul>
+        </div>
+        <div>
+          <h4>EPIs & Segurança</h4>
+          <ul><li>Capacetes</li><li>Luvas</li><li>Óculos</li><li>Botas</li><li>Protetor Solar</li></ul>
+        </div>
+        <div>
+          <h4>Ferramentas</h4>
+          <ul><li>Elétricas</li><li>Manuais</li><li>A Bateria</li><li>De Corte</li><li>Medição</li></ul>
+        </div>
+      </div>
+    </div>
+    <div class="nav__item">ABRASIVOS</div>
+    <div class="nav__item">EPI'S</div>
+    <div class="nav__item">FERRAMENTAS ELÉTRICAS</div>
+    <div class="nav__item">FERRAMENTAS MANUAIS</div>
+    <div class="nav__item">MÁQUINAS</div>
+    <div class="nav__item">🔥 OFERTAS</div>
+    <div class="nav__item">🏢 CORPORATIVO</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero__slide">
+    <div class="hero__content">
+      <span class="hero__badge">⚡ BLACK NOVEMBER 2026</span>
+      <h1 class="hero__title">Até <span>60% OFF</span> em ferramentas<br>e equipamentos industriais</h1>
+      <p class="hero__sub">As melhores marcas do mercado com entrega rápida e condições exclusivas para você.</p>
+      <a href="#" class="hero__cta" onclick="showToast('🎉 Redirecionando para ofertas...');return false;">Ver ofertas agora →</a>
+    </div>
+    <div class="hero__dots">
+      <span class="active"></span><span></span><span></span>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="section">
+  <div class="section__head">
+    <div>
+      <h2 class="section__title">Categorias em destaque<small>Navegue por departamento</small></h2>
+    </div>
+    <a href="#" class="section__link">Ver todas →</a>
+  </div>
+  <div class="cats">
+    <div class="cat" onclick="filtrarPorCategoria('abrasivos')"><div class="cat__icon">💿</div><div class="cat__name">Abrasivos</div></div>
+    <div class="cat" onclick="filtrarPorCategoria('epi')"><div class="cat__icon">🦺</div><div class="cat__name">EPIs</div></div>
+    <div class="cat" onclick="filtrarPorCategoria('eletrica')"><div class="cat__icon">⚡</div><div class="cat__name">Ferramentas Elétricas</div></div>
+    <div class="cat" onclick="filtrarPorCategoria('manual')"><div class="cat__icon">🔧</div><div class="cat__name">Ferramentas Manuais</div></div>
+    <div class="cat" onclick="filtrarPorCategoria('maquinas')"><div class="cat__icon">⚙️</div><div class="cat__name">Máquinas</div></div>
+    <div class="cat" onclick="filtrarPorCategoria('soldas')"><div class="cat__icon">🔥</div><div class="cat__name">Soldas</div></div>
+  </div>
+</section>
+
+<!-- CATALOG -->
+<section class="section">
+  <div class="section__head">
+    <div><h2 class="section__title">Catálogo<small id="catalogInfo">47 produtos encontrados</small></h2></div>
+    <a href="#" class="section__link">Ordenar por: <strong>Mais vendidos ▾</strong></a>
+  </div>
+
+  <div class="catalog">
+    <aside class="filters">
+      <h3>🔍 Filtrar</h3>
+      <div class="filter-group">
+        <h4>Categoria</h4>
+        <label class="filter-opt"><input type="checkbox" checked> Abrasivos <span class="count">(12)</span></label>
+        <label class="filter-opt"><input type="checkbox"> EPIs <span class="count">(18)</span></label>
+        <label class="filter-opt"><input type="checkbox"> Ferramentas <span class="count">(24)</span></label>
+        <label class="filter-opt"><input type="checkbox"> Máquinas <span class="count">(8)</span></label>
+      </div>
+      <div class="filter-group">
+        <h4>Marca</h4>
+        <label class="filter-opt"><input type="checkbox"> Bosch <span class="count">(6)</span></label>
+        <label class="filter-opt"><input type="checkbox"> Makita <span class="count">(5)</span></label>
+        <label class="filter-opt"><input type="checkbox"> DeWalt <span class="count">(4)</span></label>
+        <label class="filter-opt"><input type="checkbox"> Vonder <span class="count">(9)</span></label>
+      </div>
+      <div class="filter-group">
+        <h4>Faixa de preço</h4>
+        <label class="filter-opt"><input type="radio" name="price"> Até R$ 100</label>
+        <label class="filter-opt"><input type="radio" name="price"> R$ 100 - R$ 500</label>
+        <label class="filter-opt"><input type="radio" name="price"> R$ 500 - R$ 1.500</label>
+        <label class="filter-opt"><input type="radio" name="price"> Acima de R$ 1.500</label>
+      </div>
+      <div class="filter-group">
+        <h4>Disponibilidade</h4>
+        <label class="filter-opt"><input type="checkbox" checked> Em estoque</label>
+        <label class="filter-opt"><input type="checkbox"> Frete grátis</label>
+      </div>
+    </aside>
+
+    <div class="grid" id="productGrid"></div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<div class="news">
+  <div>
+    <h3>📬 Receba ofertas exclusivas</h3>
+    <p>Cadastre-se e ganhe 10% off na primeira compra</p>
+  </div>
+  <form class="news__form" onsubmit="showToast('✅ Inscrição confirmada!');return false;">
+    <input type="email" placeholder="Seu melhor e-mail" required>
+    <button>Quero descontos</button>
+  </form>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+          <div style="width:38px;height:38px;background:var(--green);border-radius:8px;display:grid;place-items:center;font-size:20px;">🔧</div>
+          <div style="color:#fff;font-size:20px;font-weight:800;">MAQUISUL</div>
+        </div>
+        <p>Especializada em máquinas, ferramentas, EPIs, tintas, abrasivos e equipamentos industriais. Do pequeno ao grande negócio, sua solução em um só lugar.</p>
+        <div class="footer__social">
+          <a href="#" title="Instagram">📷</a>
+          <a href="#" title="Facebook">📘</a>
+          <a href="#" title="LinkedIn">💼</a>
+          <a href="#" title="YouTube">▶️</a>
+        </div>
+      </div>
+      <div>
+        <h5>Institucional</h5>
+        <ul><li>Quem somos</li><li>Vendas corporativas</li><li>Outlet</li><li>Trabalhe conosco</li></ul>
+      </div>
+      <div>
+        <h5>Políticas</h5>
+        <ul><li>Privacidade</li><li>Trocas e devoluções</li><li>Entrega</li><li>Termos de uso</li></ul>
+      </div>
+      <div>
+        <h5>Contato</h5>
+        <ul>
+          <li>📞 (99) 3525-3555</li>
+          <li>📱 (99) 2101-3555</li>
+          <li>📧 e-commerce@maquisul.net</li>
+          <li>📍 Imperatriz - MA</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      © 2026 Maquisul Comercial LTDA · CNPJ 69.427.219/0001-78 · Todos os direitos reservados
+    </div>
+  </div>
+</footer>
+
+<!-- OVERLAY / DRAWER / MODAL / TOAST -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<aside class="drawer" id="cartDrawer">
+  <div class="drawer__head">
+    <h3>🛒 Meu carrinho</h3>
+    <button class="drawer__close" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="drawer__body" id="cartBody"></div>
+  <div class="drawer__foot" id="cartFoot"></div>
+</aside>
+
+<div class="modal" id="productModal">
+  <div class="modal__content">
+    <button class="modal__close" onclick="closeProductModal()">✕</button>
+    <div class="modal__grid" id="modalContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <div class="toast__icon">✓</div>
+  <span id="toastMsg">Adicionado!</span>
+</div>
+
+<script>
+// ============ DADOS ============
+const produtos = [
+  {id:1, nome:'Disco de Corte 4.1/2" Norton', marca:'Norton', cat:'abrasivos', preco:12.90, antigo:18.90, icon:'💿', badge:'-32%', estoque:true, rating:4.8, desc:'Disco de corte para metal com alta durabilidade. Ideal para uso profissional em serralherias e oficinas.', specs:{Material:'Óxido de Alumínio',Diâmetro:'115mm',Espessura:'1mm',Aplicação:'Corte de metal'}},
+  {id:2, nome:'Furadeira de Impacto Bosch GSB 550', marca:'Bosch', cat:'eletrica', preco:289.90, antigo:399.90, icon:'🔌', badge:'-28%', estoque:true, rating:4.9, desc:'Furadeira de impacto 550W com mandril de 1/2". Perfeita para concreto, madeira e metal.', specs:{Potência:'550W',Mandril:'1/2"',Tensão:'127V',Peso:'1.8kg'}},
+  {id:3, nome:'Capacete de Segurança 3M H-700', marca:'3M', cat:'epi', preco:42.50, antigo:59.90, icon:'⛑️', badge:'-29%', estoque:true, rating:4.7, desc:'Capacete classe B com aba frontal. Certificado pelo INMETRO. Alta resistência a impactos.', specs:{Classe:'B',Cor:'Branco',Certificação:'INMETRO',Peso:'385g'}},
+  {id:4, nome:'Esmerilhadeira Angular Makita 720W', marca:'Makita', cat:'eletrica', preco:459.00, antigo:620.00, icon:'⚙️', badge:'-26%', estoque:true, rating:4.9, desc:'Esmerilhadeira angular 4.1/2" com 720W de potência. Ideal para corte e desbaste profissional.', specs:{Potência:'720W',Disco:'115mm',Rotação:'11.000rpm',Tensão:'220V'}},
+  {id:5, nome:'Luva de Segurança Vaqueta', marca:'Marluvas', cat:'epi', preco:18.90, antigo:24.90, icon:'🧤', badge:'-24%', estoque:true, rating:4.5, desc:'Luva de vaqueta reforçada, resistente a abrasão. Ideal para trabalhos pesados.', specs:{Material:'Vaqueta',Tamanho:'G',Certificação:'CE',Par:'1 par'}},
+  {id:6, nome:'Trena a Laser Bosch GLM 50-27C', marca:'Bosch', cat:'manual', preco:689.00, antigo:899.00, icon:'📏', badge:'-23%', estoque:true, rating:4.8, desc:'Trena a laser 50m com Bluetooth e memória de 30 medições. Precisão profissional.', specs:{Alcance:'50m',Precisão:'±1.5mm',Bluetooth:'Sim',Bateria:'2x AAA'}},
+  {id:7, nome:'Máquina de Solda Inversora 200A', marca:'Vonder', cat:'soldas', preco:849.00, antigo:1099.00, icon:'🔥', badge:'-23%', estoque:true, rating:4.6, desc:'Inversora de solda 200A bivolt. Solda eletrodos de 1.6 a 4mm. Ciclo de trabalho 60%.', specs:{Corrente:'200A',Tensão:'Bivolt',Eletrodo:'1.6 a 4mm',Peso:'4.2kg'}},
+  {id:8, nome:'Serra Circular DeWalt 1400W', marca:'DeWalt', cat:'eletrica', preco:789.00, antigo:1099.00, icon:'🪚', badge:'-28%', estoque:true, rating:4.8, desc:'Serra circular 7.1/4" com 1400W. Guia laser e base ajustável. Corte preciso em madeira.', specs:{Potência:'1400W',Disco:'184mm',Rotação:'5800rpm',Profundidade:'65mm'}},
+  {id:9, nome:'Óculos de Proteção Incolor', marca:'3M', cat:'epi', preco:15.90, antigo:22.90, icon:'🥽', badge:'-30%', estoque:true, rating:4.4, desc:'Óculos de proteção incolor com tratamento antiembaçante. Certificado.', specs:{Lente:'Policarbonato',Tratamento:'Antiembaçante',Certificação:'INMETRO',Cor:'Incolor'}},
+  {id:10, nome:'Chave de Fenda Phillips 1/4"', marca:'Gedore', cat:'manual', preco:24.90, antigo:34.90, icon:'🔧', badge:'-28%', estoque:true, rating:4.7, desc:'Chave Phillips 1/4" com ponta magnética e cabo ergonômico.', specs:{Tipo:'Phillips',Tamanho:'1/4"',Cabo:'Ergonômico',Ponta:'Magnética'}},
+  {id:11, nome:'Disco Flap 4.1/2" Grão 60', marca:'Abrasfer', cat:'abrasivos', preco:9.90, antigo:14.90, icon:'💿', badge:'-33%', estoque:true, rating:4.6, desc:'Disco flap para acabamento em metal. Grão 60. Alta durabilidade.', specs:{Grão:'60',Diâmetro:'115mm',Aplicação:'Acabamento',Material:'Óx. Zircônio'}},
+  {id:12, nome:'Parafusadeira Bosch GSR 12V', marca:'Bosch', cat:'eletrica', preco:399.00, antigo:549.00, icon:'🔩', badge:'-27%', estoque:true, rating:4.9, desc:'Parafusadeira a bateria 12V com 2 baterias e maleta. Compacta e potente.', specs:{Tensão:'12V',Baterias:'2x 2.0Ah',Torque:'30Nm',Maleta:'Sim'}},
+];
+
+// ============ ESTADO ============
+let carrinho = [];
+let categoriaAtual = null;
+
+// ============ RENDER PRODUTOS ============
+function renderProducts(lista) {
+  const grid = document.getElementById('productGrid');
+  if (!lista.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--grey)"><div style="font-size:48px;margin-bottom:12px">🔍</div>Nenhum produto encontrado</div>`;
+    return;
+  }
+  grid.innerHTML = lista.map(p => `
+    <div class="product">
+      <div class="product__img">
+        ${p.badge ? `<span class="product__badge ${p.badge.startsWith('NOVO')?'product__badge--new':''}">${p.badge}</span>` : ''}
+        <button class="product__fav" onclick="event.stopPropagation();toggleFav(this)">♡</button>
+        ${p.icon}
+      </div>
+      <div class="product__body">
+        <div class="product__brand">${p.marca}</div>
+        <div class="product__name">${p.nome}</div>
+        <div class="product__stock">${p.estoque ? 'Em estoque' : 'Sem estoque'}</div>
+        <div class="product__price">
+          <small>A partir de</small>
+          <strong>R$ ${p.preco.toFixed(2).replace('.',',')}</strong>
+          ${p.antigo ? `<span class="old">R$ ${p.antigo.toFixed(2).replace('.',',')}</span>` : ''}
+        </div>
+        <div class="product__actions">
+          <button class="btn-add" onclick="addToCart(${p.id})">🛒 Adicionar</button>
+          <button class="btn-view" onclick="openProductModal(${p.id})">👁</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('catalogInfo').textContent = `${lista.length} produtos encontrados`;
+}
+
+// ============ CARRINHO ============
+function addToCart(id) {
+  const p = produtos.find(x => x.id === id);
+  if (!p) return;
+  const item = carrinho.find(x => x.id === id);
+  if (item) item.qty++;
+  else carrinho.push({ ...p, qty: 1 });
+  updateCart();
+  showToast(`✅ ${p.nome.substring(0, 30)}... adicionado!`);
+}
+
+function removeFromCart(id) {
+  carrinho = carrinho.filter(x => x.id !== id);
+  updateCart();
+}
+
+function changeQty(id, delta) {
+  const item = carrinho.find(x => x.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) return removeFromCart(id);
+  updateCart();
+}
+
+function updateCart() {
+  const count = carrinho.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cartCount').textContent = count;
+  document.getElementById('cartCount').style.display = count ? 'grid' : 'none';
+
+  const body = document.getElementById('cartBody');
+  const foot = document.getElementById('cartFoot');
+
+  if (!carrinho.length) {
+    body.innerHTML = `<div class="cart-empty"><div class="cart-empty__icon">🛒</div><p style="font-weight:600;color:var(--dark);margin-bottom:4px">Seu carrinho está vazio</p><small>Adicione produtos para continuar</small></div>`;
+    foot.innerHTML = '';
+    return;
+  }
+
+  body.innerHTML = carrinho.map(i => `
+    <div class="cart-item">
+      <div class="cart-item__img">${i.icon}</div>
+      <div>
+        <div class="cart-item__name">${i.nome}</div>
+        <div class="cart-item__meta">${i.marca} · ${i.cat}</div>
+        <div class="qty" style="margin-top:6px">
+          <button onclick="changeQty(${i.id},-1)">−</button>
+          <span>${i.qty}</span>
+          <button onclick="changeQty(${i.id},1)">+</button>
+        </div>
+      </div>
+      <div>
+        <div class="cart-item__price">R$ ${(i.preco * i.qty).toFixed(2).replace('.',',')}</div>
+        <button onclick="removeFromCart(${i.id})" style="font-size:11px;color:#e53935;font-weight:600">Remover</button>
+      </div>
+    </div>
+  `).join('');
+
+  const subtotal = carrinho.reduce((s, i) => s + i.preco * i.qty, 0);
+  const frete = subtotal > 500 ? 0 : 29.90;
+  const total = subtotal + frete;
+
+  foot.innerHTML = `
+    <div class="cart-total"><span>Subtotal</span><span>R$ ${subtotal.toFixed(2).replace('.',',')}</span></div>
+    <div class="cart-total"><span>Frete</span><span style="color:${frete===0?'var(--green)':'var(--grey)'}">${frete===0?'GRÁTIS':'R$ '+frete.toFixed(2).replace('.',',')}</span></div>
+    <div class="cart-total cart-total--big"><span>Total</span><span>R$ ${total.toFixed(2).replace('.',',')}</span></div>
+    <button class="cart-cta" onclick="finalizarCompra()">Finalizar compra →</button>
+    <div style="text-align:center;font-size:11px;color:var(--grey);margin-top:10px">💳 Em até 12x sem juros · 🔒 Compra segura</div>
+  `;
+}
+
+function toggleCart() {
+  const drawer = document.getElementById('cartDrawer');
+  const overlay = document.getElementById('overlay');
+  const isOpen = drawer.classList.contains('show');
+  if (isOpen) {
+    drawer.classList.remove('show');
+    overlay.classList.remove('show');
+  } else {
+    drawer.classList.add('show');
+    overlay.classList.add('show');
+  }
+}
+
+function finalizarCompra() {
+  if (!carrinho.length) return;
+  showToast('🎉 Pedido simulado com sucesso! Obrigado!');
+  carrinho = [];
+  updateCart();
+  toggleCart();
+}
+
+// ============ MODAL PRODUTO ============
+function openProductModal(id) {
+  const p = produtos.find(x => x.id === id);
+  if (!p) return;
+  const content = document.getElementById('modalContent');
+  content.innerHTML = `
+    <div class="modal__img">${p.icon}</div>
+    <div class="modal__info">
+      <div class="modal__brand">${p.marca}</div>
+      <h2 class="modal__title">${p.nome}</h2>
+      <div class="modal__rating"><span class="stars">${'★'.repeat(Math.round(p.rating))}</span> ${p.rating} · 128 avaliações</div>
+      <div class="modal__desc">${p.desc}</div>
+      <div class="modal__specs">
+        ${Object.entries(p.specs).map(([k,v]) => `<div class="modal__spec"><span>${k}</span><strong>${v}</strong></div>`).join('')}
+      </div>
+      <div class="modal__price">
+        <small>À vista no PIX</small>
+        <div class="val">R$ ${p.preco.toFixed(2).replace('.',',')}</div>
+        <div class="parc">ou 12x de R$ ${(p.preco/12).toFixed(2).replace('.',',')} sem juros</div>
+      </div>
+      <div class="modal__actions">
+        <button class="btn-add" onclick="addToCart(${p.id});closeProductModal()">🛒 Adicionar ao carrinho</button>
+        <button class="btn-outline" onclick="showToast('💬 Abrindo WhatsApp...')">💬 WhatsApp</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('productModal').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function closeAll() {
+  document.getElementById('cartDrawer').classList.remove('show');
+  document.getElementById('productModal').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ============ TOAST ============
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============ FAVORITOS ============
+function toggleFav(btn) {
+  btn.classList.toggle('active');
+  btn.textContent = btn.classList.contains('active') ? '❤️' : '♡';
+}
+
+// ============ FILTROS ============
+function filtrarPorCategoria(cat) {
+  categoriaAtual = cat;
+  const nomes = {abrasivos:'Abrasivos',epi:'EPIs',eletrica:'Ferramentas Elétricas',manual:'Ferramentas Manuais',maquinas:'Máquinas',soldas:'Soldas'};
+  const filtrados = produtos.filter(p => p.cat === cat);
+  renderProducts(filtrados);
+  document.querySelector('.section__title small#catalogInfo');
+  document.querySelector('.section__title').innerHTML = `${nomes[cat] || 'Catálogo'}<small id="catalogInfo">${filtrados.length} produtos encontrados</small>`;
+  document.querySelector('.section__title').scrollIntoView({behavior:'smooth', block:'start'});
+  showToast(`🔍 Filtrando por: ${nomes[cat]}`);
+}
+
+// ============ BUSCA AUTOCOMPLETE ============
+const sugestoes = ['Disco de corte','Furadeira Bosch','Esmerilhadeira Makita','Capacete 3M','Luva vaqueta','Trena a laser','Máquina de solda','Serra circular','Óculos de proteção','Chave de fenda','Parafusadeira','Disco flap'];
+
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  const drop = document.getElementById('searchDrop');
+  if (q.length < 2) { drop.classList.remove('show'); return; }
+  const found = sugestoes.filter(s => s.toLowerCase().includes(q)).slice(0, 6);
+  if (!found.length) { drop.classList.remove('show'); return; }
+  drop.innerHTML = found.map(s => `<li onclick="document.getElementById('search').value='${s}';document.getElementById('searchDrop').classList.remove('show');filtrarPorBusca('${s}')">🔍 ${s}<span class="tag">${produtos.filter(p=>p.nome.toLowerCase().includes(s.toLowerCase())).length}</span></li>`).join('');
+  drop.classList.add('show');
+});
+
+function filtrarPorBusca(termo) {
+  const filtrados = produtos.filter(p => p.nome.toLowerCase().includes(termo.toLowerCase()) || p.marca.toLowerCase().includes(termo.toLowerCase()));
+  renderProducts(filtrados);
+  showToast(`🔍 ${filtrados.length} resultado(s) para "${termo}"`);
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search')) document.getElementById('searchDrop').classList.remove('show');
+});
+
+// ============ HERO DOTS ============
+document.querySelectorAll('.hero__dots span').forEach((d, i) => {
+  d.onclick = () => {
+    document.querySelectorAll('.hero__dots span').forEach(x => x.classList.remove('active'));
+    d.classList.add('active');
+  };
+});
+
+// ============ INIT ============
+renderProducts(produtos);
+updateCart();
+</script>
+</body>
+</html>
